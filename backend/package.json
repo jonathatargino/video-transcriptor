@@ -21,7 +21,11 @@
     "typescript": "~7.0.2"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1116.0",
+    "@deepgram/sdk": "^5.8.0",
+    "@dotenvx/dotenvx": "^2.21.0",
     "aws-cdk-lib": "^2.265.0",
-    "constructs": "^10.5.0"
+    "constructs": "^10.5.0",
+    "pino": "^10.3.1"
   }
 }

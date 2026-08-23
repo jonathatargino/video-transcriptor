@@ -6,6 +6,9 @@ import * as sqs from "aws-cdk-lib/aws-sqs";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as s3Notifications from "aws-cdk-lib/aws-s3-notifications";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
+import dotenvx from "@dotenvx/dotenvx";
+
+dotenvx.config();
 
 export class VideoTranscriptorCloudformationStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -30,6 +33,7 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
           queue: videoTranscriptorDeadLetterQueue,
           maxReceiveCount: 3,
         },
+        visibilityTimeout: cdk.Duration.minutes(5),
       },
     );
 
@@ -46,8 +50,14 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
         entry: path.join(
           import.meta.dirname,
           "lambdas",
-          "video-transcriptor-handler.ts",
+          "video-transcriptor-handler",
+          "index.ts",
         ),
+        environment: {
+          DEEPGRAM_API_KEY: process.env.DEEPGRAM_API_KEY || "",
+        },
+        timeout: cdk.Duration.minutes(5),
+        memorySize: 256,
       },
     );
 
