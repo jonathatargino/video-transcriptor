@@ -1,16 +1,7 @@
-export const handler = async (event: any) => {
-  const { resource, path, httpMethod, headers, queryStringParameters, body } =
-    event;
-  const response = {
-    resource,
-    path,
-    httpMethod,
-    headers,
-    queryStringParameters,
-    body,
-  };
-  return {
-    body: JSON.stringify(response, null, 2),
-    statusCode: 200,
-  };
+import { SQSEvent, SQSHandler } from "aws-lambda";
+
+export const handler: SQSHandler = async (event: SQSEvent) => {
+  for (const record of event.Records) {
+    console.log(record);
+  }
 };
