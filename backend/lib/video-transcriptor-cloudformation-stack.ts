@@ -5,6 +5,7 @@ import * as path from "node:path";
 import * as sqs from "aws-cdk-lib/aws-sqs";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as s3Notifications from "aws-cdk-lib/aws-s3-notifications";
+import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import dotenvx from "@dotenvx/dotenvx";
 
@@ -66,5 +67,21 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
     );
 
     videoTranscriptorBucket.grantRead(videoTranscriptorLambdaFunction);
+
+    const table = new dynamodb.TableV2(this, "TranscriptionsDynamoDBTable", {
+      partitionKey: {
+        name: "job_id",
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: "createdAt",
+        type: dynamodb.AttributeType.NUMBER,
+      },
+      tableName: "transcriptions",
+      billing: dynamodb.Billing.onDemand(),
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    table.grantWriteData(videoTranscriptorLambdaFunction);
   }
 }

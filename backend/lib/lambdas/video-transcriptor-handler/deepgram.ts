@@ -13,12 +13,16 @@ export async function readableToText(readable: Readable) {
     paragraphs: true,
   });
 
-  logger.info({ deepgramResponse: response });
-
   if ("results" in response) {
-    return (
-      response?.results?.channels?.[0]?.alternatives?.[0]?.transcript ?? ""
-    );
+    const transcription =
+      response?.results?.channels?.[0]?.alternatives?.[0]?.transcript ?? "";
+
+    logger.info({
+      message: "Successfully transcripted the readable",
+      transcription,
+    });
+
+    return transcription;
   }
 
   return "";
