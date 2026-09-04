@@ -20,9 +20,9 @@
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
     "typeRoots": ["./node_modules/@types"],
-    "noEmit": true,
     "isolatedModules": true,
-    "types": ["jest", "node"]
+    "types": ["jest", "node"],
+    "outDir": "build"
   },
   "exclude": ["node_modules", "cdk.out"],
   "include": ["bin/**/*.ts", "lib/**/*.ts", "src/**/*.ts", "test/**/*.ts"]

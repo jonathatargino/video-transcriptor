@@ -23,7 +23,7 @@ export const saveTranscription: SaveTranscription = async (item) => {
   });
 
   const command = new PutCommand({
-    TableName: "transcriptions",
+    TableName: process.env.TRANSCRIPTIONS_TABLE_NAME,
     Item: commandItem,
   });
 
