@@ -116,10 +116,6 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
 
     const httpApi = new apigatewayv2.HttpApi(this, "VideoTranscriptorApi");
 
-    // Explicit security group for the VPC Link: without one, API Gateway
-    // falls back to the VPC's default security group, which may have no
-    // egress rules and silently blocks all traffic to the ALB (manifests
-    // as "Service Unavailable" even though the ECS service is healthy).
     const vpcLinkSecurityGroup = new ec2.SecurityGroup(
       this,
       "VideoTranscriptorVpcLinkSecurityGroup",
