@@ -44,6 +44,16 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
       },
     );
 
+    const table = new dynamodb.TableV2(this, "TranscriptionsDynamoDBTablev2", {
+      partitionKey: {
+        name: "jobId",
+        type: dynamodb.AttributeType.STRING,
+      },
+      tableName: "transcription",
+      billing: dynamodb.Billing.onDemand(),
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
     videoTranscriptorBucket.addEventNotification(
       s3.EventType.OBJECT_CREATED,
       new s3Notifications.SqsDestination(videoTranscriptorQueue),
@@ -62,6 +72,7 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
         ),
         environment: {
           DEEPGRAM_API_KEY: process.env.DEEPGRAM_API_KEY || "",
+          TRANSCRIPTIONS_TABLE_NAME: table.tableName,
         },
         timeout: cdk.Duration.minutes(5),
         memorySize: 256,
@@ -73,20 +84,6 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
     );
 
     videoTranscriptorBucket.grantRead(videoTranscriptorLambdaFunction);
-
-    const table = new dynamodb.TableV2(this, "TranscriptionsDynamoDBTable", {
-      partitionKey: {
-        name: "job_id",
-        type: dynamodb.AttributeType.STRING,
-      },
-      sortKey: {
-        name: "createdAt",
-        type: dynamodb.AttributeType.NUMBER,
-      },
-      tableName: "transcriptions",
-      billing: dynamodb.Billing.onDemand(),
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-    });
 
     table.grantWriteData(videoTranscriptorLambdaFunction);
 
@@ -140,8 +137,8 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
     );
 
     httpApi.addRoutes({
-      path: "/{proxy+}",
-      methods: [apigatewayv2.HttpMethod.ANY],
+      path: "/api/v1/transcription/{id}",
+      methods: [apigatewayv2.HttpMethod.GET],
       integration: albIntegration,
     });
 

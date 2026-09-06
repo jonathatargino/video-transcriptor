@@ -17,9 +17,9 @@ export type GetTranscription = (params: {
 export const getTranscription: GetTranscription = async ({ jobId }) => {
   try {
     const commandItem: GetCommandInput = {
-      TableName: "transcriptions",
+      TableName: process.env.TRANSCRIPTIONS_TABLE_NAME,
       Key: {
-        job_id: jobId,
+        jobId: jobId,
       },
     };
 

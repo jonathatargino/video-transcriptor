@@ -12,7 +12,7 @@ type SaveTranscription = (item: {
 
 export const saveTranscription: SaveTranscription = async (item) => {
   const commandItem = {
-    job_id: item.jobId,
+    jobId: item.jobId,
     transcription: item.transcription,
     createdAt: Date.now(),
   };

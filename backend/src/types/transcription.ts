@@ -1,5 +1,5 @@
 export interface Transcription {
-  job_id: string;
+  jobId: string;
   transcription: string;
   createdAt: Date;
 }
