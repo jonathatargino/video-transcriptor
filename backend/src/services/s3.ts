@@ -4,32 +4,38 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 import { logger } from "../lib/logger/index.js";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const client = new S3Client({});
 
-export type UploadVideo = (params: {
-  fileBuffer: Buffer;
+export type GetPresignedUrl = (params: {
+  fileType: string;
   jobId: string;
-}) => Promise<void>;
+}) => Promise<string>;
 
-export const uploadVideo: UploadVideo = async ({ jobId, fileBuffer }) => {
+export const getPresignedUrl: GetPresignedUrl = async ({ fileType, jobId }) => {
   const commandItem: PutObjectCommandInput = {
-    Bucket: "videotranscriptorcloudfor-videostotranscript453c87-mdf1nqwvspmr",
+    Bucket: process.env.TRANSCRIPTIONS_VIDEO_BUCKET_NAME,
     Key: jobId,
-    Body: fileBuffer,
+    ContentType: fileType,
   };
 
   logger.info({
-    message: "Uploading file to S3",
+    message: "Generating presigned url to file",
     item: { ...commandItem },
   });
 
   const command = new PutObjectCommand(commandItem);
 
-  await client.send(command);
+  const presignedUrl = await getSignedUrl(client, command, {
+    expiresIn: 900,
+  });
 
   logger.info({
-    message: "Successfully uploaded file to S3",
+    message: "Successfully generated presigned url to file",
     jobId,
+    presignedUrl,
   });
+
+  return presignedUrl;
 };

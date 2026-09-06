@@ -23,7 +23,7 @@ export function errorHandler(
     method: req.method,
     path: req.originalUrl,
     statusCode,
-    error: err,
+    error: err instanceof Error ? err : new Error(String(err)),
   });
 
   res.status(statusCode).send({ error: message });

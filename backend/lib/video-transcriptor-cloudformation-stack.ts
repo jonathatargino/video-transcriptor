@@ -105,6 +105,8 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
             containerPort: 3009,
             environment: {
               TRANSCRIPTIONS_TABLE_NAME: table.tableName,
+              TRANSCRIPTIONS_VIDEO_BUCKET_NAME:
+                videoTranscriptorBucket.bucketName,
               NODE_ENV: "production",
             },
           },
@@ -139,6 +141,12 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
     httpApi.addRoutes({
       path: "/api/v1/transcription/{id}",
       methods: [apigatewayv2.HttpMethod.GET],
+      integration: albIntegration,
+    });
+
+    httpApi.addRoutes({
+      path: "/api/v1/transcription/presigned-url",
+      methods: [apigatewayv2.HttpMethod.POST],
       integration: albIntegration,
     });
 

@@ -8,6 +8,8 @@ dotenvx.config();
 
 const app = express();
 
+app.use(express.json());
+
 app.get("/", (_req, res) => res.sendStatus(200));
 
 app.use("/api/v1", getAppRouter());

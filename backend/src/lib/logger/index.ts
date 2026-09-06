@@ -1,9 +1,12 @@
-import { pino, destination } from "pino";
+import { pino, destination, stdTimeFunctions, stdSerializers } from "pino";
 
 export const logger = pino(
   {
     level: "info",
-    timestamp: pino.stdTimeFunctions.isoTime,
+    timestamp: stdTimeFunctions.isoTime,
+    serializers: {
+      error: stdSerializers.err,
+    },
   },
   destination({ sync: true }),
 );

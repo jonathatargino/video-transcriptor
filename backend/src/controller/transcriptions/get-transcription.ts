@@ -6,5 +6,5 @@ export async function getTranscription(req: Request, res: Response) {
   const jobId = req.params.jobId as string;
   const transcription = await getTranscriptionByJobId({ jobId });
 
-  return res.status(StatusCodes.OK).send({ transcription });
+  return res.status(StatusCodes.OK).json({ transcription });
 }
