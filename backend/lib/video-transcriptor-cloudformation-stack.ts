@@ -24,6 +24,13 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
     const videoTranscriptorBucket = new s3.Bucket(this, "VideosToTranscript", {
       encryption: s3.BucketEncryption.S3_MANAGED,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
+      cors: [
+        {
+          allowedOrigins: [process.env.FRONTEND_ORIGIN || "*"],
+          allowedMethods: [s3.HttpMethods.PUT, s3.HttpMethods.HEAD],
+          allowedHeaders: ["*"],
+        },
+      ],
     });
 
     const videoTranscriptorDeadLetterQueue = new sqs.Queue(
@@ -113,7 +120,13 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
         },
       );
 
-    const httpApi = new apigatewayv2.HttpApi(this, "VideoTranscriptorApi");
+    const httpApi = new apigatewayv2.HttpApi(this, "VideoTranscriptorApi", {
+      corsPreflight: {
+        allowOrigins: [process.env.FRONTEND_ORIGIN || "*"],
+        allowMethods: [apigatewayv2.CorsHttpMethod.ANY],
+        allowHeaders: ["Content-Type"],
+      },
+    });
 
     const vpcLinkSecurityGroup = new ec2.SecurityGroup(
       this,
@@ -151,5 +164,6 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
     });
 
     table.grantReadData(fargateService.taskDefinition.taskRole);
+    videoTranscriptorBucket.grantPut(fargateService.taskDefinition.taskRole);
   }
 }

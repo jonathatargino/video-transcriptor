@@ -16,7 +16,7 @@ export type GetPresignedUrl = (params: {
 export const getPresignedUrl: GetPresignedUrl = async ({ fileType, jobId }) => {
   const commandItem: PutObjectCommandInput = {
     Bucket: process.env.TRANSCRIPTIONS_VIDEO_BUCKET_NAME,
-    Key: jobId,
+    Key: `${jobId}.mp4`,
     ContentType: fileType,
   };
 
