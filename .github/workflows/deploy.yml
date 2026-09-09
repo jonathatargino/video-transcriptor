@@ -1,0 +1,109 @@
+name: CI/CD Monorepo
+
+on:
+  push:
+    branches: ["master"]
+#   pull_request:
+#     branches: ["main"]
+
+jobs:
+  ci-api:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node.js config
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+
+      - name: Dependencies install
+        run: npm ci
+
+      - name: Test API
+        run: npm run test
+
+      - name: Build API
+        run: npm run build
+
+  ci-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node.js config
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+
+      - name: Dependencies install
+        run: npm ci
+
+      - name: Test Frontend
+        run: npm run test
+
+      - name: Build Frontend
+        run: npm run build
+
+  cd-api:
+    needs: ci-api
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node.js config
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+
+      - name: Dependencies install
+        run: npm ci
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Deploy
+        run: npm run deploy:ci
+
+  cd-frontend:
+    needs: ci-frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node.js config
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+
+      - name: Dependencies install
+        run: npm ci
+
+      - name: Build Frontend
+        run: npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Deploy
+        run: npm run deploy:ci
