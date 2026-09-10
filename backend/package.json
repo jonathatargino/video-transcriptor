@@ -6,7 +6,7 @@
   },
   "scripts": {
     "start": "node build/src/index.js",
-    "build": "tsc",
+    "build": "tsup",
     "build:docker": "docker build -t video-transcriptor:latest .",
     "start:docker": "docker run --name video-transcriptor video-transcriptor:latest",
     "watch": "tsc -w",
@@ -24,6 +24,7 @@
     "@types/node": "^24.10.1",
     "aws-cdk": "2.1138.0",
     "jest": "^30",
+    "tsup": "^8.5.1",
     "tsx": "^4.23.0",
     "typescript": "~7.0.2"
   },
