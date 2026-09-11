@@ -6,16 +6,21 @@ WORKDIR /app
 ## BUILDER
 FROM base AS builder
 
-COPY package.json package-lock.json ./
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm \
+    --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=package-lock.json,target=package-lock.json \
+    npm ci
+
 COPY . .
 RUN npm run build
 
 ## RUNNER
 FROM base AS runner
 
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+RUN --mount=type=cache,target=/root/.npm \
+    --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=package-lock.json,target=package-lock.json \
+    npm ci --omit=dev
 
 COPY --from=builder /app/build ./build
 
