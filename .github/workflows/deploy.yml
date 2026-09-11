@@ -75,6 +75,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      - name: Docker Buildkit Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/buildkit
+          key: ${{ runner.os }}-buildkit-${{ hashFiles('backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-buildkit-
+
       - name: Deploy
         run: npm run deploy:ci
 
