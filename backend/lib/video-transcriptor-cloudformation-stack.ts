@@ -117,6 +117,9 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
               NODE_ENV: "production",
             },
           },
+          circuitBreaker: {
+            rollback: true,
+          },
         },
       );
 
