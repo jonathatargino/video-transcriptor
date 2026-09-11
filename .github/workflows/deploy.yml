@@ -76,9 +76,8 @@ jobs:
           aws-region: us-east-1
 
       - name: Set up Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          install: true
 
       - name: Docker Buildkit Cache
         uses: actions/cache@v4
@@ -89,6 +88,8 @@ jobs:
             ${{ runner.os }}-buildkit-
 
       - name: Deploy
+        env:
+          BUILDX_BUILDER: ${{ steps.buildx.outputs.name }}
         run: npm run deploy:ci
 
   cd-frontend:
