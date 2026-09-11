@@ -24,5 +24,5 @@ RUN --mount=type=cache,target=/root/.npm \
 
 COPY --from=builder /app/build ./build
 
-CMD ["node", "build/src/index.js"]
+CMD ["node", "build/index.js"]
 EXPOSE 3009
