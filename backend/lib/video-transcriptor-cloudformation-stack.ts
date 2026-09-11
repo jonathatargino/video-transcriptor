@@ -119,6 +119,7 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
                   type: "local",
                   params: { dest: buildkitCacheDir, mode: "max" },
                 },
+                outputs: ["type=docker"],
               },
             ),
             containerPort: 3009,
