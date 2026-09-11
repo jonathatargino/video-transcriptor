@@ -2,6 +2,7 @@ import * as cdk from "aws-cdk-lib/core";
 import { Construct } from "constructs";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import * as path from "node:path";
+import * as os from "node:os";
 import * as sqs from "aws-cdk-lib/aws-sqs";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as s3Notifications from "aws-cdk-lib/aws-s3-notifications";
@@ -98,6 +99,8 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
       clusterName: "video-transcriptor",
     });
 
+    const buildkitCacheDir = path.join(os.homedir(), ".cache", "buildkit");
+
     const fargateService =
       new ecsPatterns.ApplicationLoadBalancedFargateService(
         this,
@@ -108,6 +111,15 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
           taskImageOptions: {
             image: ecs.ContainerImage.fromAsset(
               path.join(import.meta.dirname, ".."),
+              {
+                cacheFrom: [
+                  { type: "local", params: { src: buildkitCacheDir } },
+                ],
+                cacheTo: {
+                  type: "local",
+                  params: { dest: buildkitCacheDir, mode: "max" },
+                },
+              },
             ),
             containerPort: 3009,
             environment: {
