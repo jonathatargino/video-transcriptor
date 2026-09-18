@@ -29,7 +29,7 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
         {
           id: "DeleteStaleObjects",
           enabled: true,
-          expiration: cdk.Duration.hours(1),
+          expiration: cdk.Duration.days(1),
         },
       ],
       cors: [
