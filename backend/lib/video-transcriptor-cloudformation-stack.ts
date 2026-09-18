@@ -67,6 +67,7 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
       tableName: "transcription",
       billing: dynamodb.Billing.onDemand(),
       removalPolicy: cdk.RemovalPolicy.DESTROY,
+      timeToLiveAttribute: "ttl",
     });
 
     videoTranscriptorBucket.addEventNotification(

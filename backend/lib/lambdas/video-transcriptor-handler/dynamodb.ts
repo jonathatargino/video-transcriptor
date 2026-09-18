@@ -1,6 +1,7 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { logger } from "../../logger/index.js";
+import { getDefaultTTLInSecond } from "./date.js";
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
@@ -15,6 +16,7 @@ export const saveTranscription: SaveTranscription = async (item) => {
     jobId: item.jobId,
     transcription: item.transcription,
     createdAt: Date.now(),
+    ttl: getDefaultTTLInSecond(),
   };
 
   logger.info({
