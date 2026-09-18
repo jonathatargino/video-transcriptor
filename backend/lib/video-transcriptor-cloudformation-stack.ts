@@ -25,6 +25,13 @@ export class VideoTranscriptorCloudformationStack extends cdk.Stack {
     const videoTranscriptorBucket = new s3.Bucket(this, "VideosToTranscript", {
       encryption: s3.BucketEncryption.S3_MANAGED,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
+      lifecycleRules: [
+        {
+          id: "DeleteStaleObjects",
+          enabled: true,
+          expiration: cdk.Duration.hours(1),
+        },
+      ],
       cors: [
         {
           allowedOrigins: [process.env.FRONTEND_ORIGIN || "*"],
