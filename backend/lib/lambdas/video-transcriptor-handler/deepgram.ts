@@ -1,17 +1,39 @@
 import { DeepgramClient } from "@deepgram/sdk";
 import { Readable } from "stream";
 import { logger } from "../../logger/index.js";
+import { MediaTranscribeRequestOctetStream } from "@deepgram/sdk/listen/v1";
 
 const client = new DeepgramClient();
 
-export async function readableToText(readable: Readable) {
-  const response = await client.listen.v1.media.transcribeFile(readable, {
+type ReadableToTextOptions = Pick<
+  MediaTranscribeRequestOctetStream,
+  "language" | "summarize" | "filler_words" | "diarize"
+>;
+
+export async function readableToText(
+  readable: Readable,
+  options: ReadableToTextOptions,
+) {
+  const shouldDetectLanguage = !options.language;
+
+  const transcribeOptions: MediaTranscribeRequestOctetStream = {
     model: "nova-3",
-    detect_language: true,
+    detect_language: shouldDetectLanguage,
     punctuate: true,
     smart_format: true,
     paragraphs: true,
+    ...options,
+  };
+
+  logger.info({
+    message: "Transcribing readable",
+    transcribeOptions,
   });
+
+  const response = await client.listen.v1.media.transcribeFile(
+    readable,
+    transcribeOptions,
+  );
 
   if ("results" in response) {
     const transcription =

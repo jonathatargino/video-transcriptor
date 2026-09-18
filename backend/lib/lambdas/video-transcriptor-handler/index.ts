@@ -13,8 +13,18 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
       );
       const jobId = objectKey.replace(/\.mp4$/, "");
 
-      const readable = await getS3VideoReadable(payload.s3);
-      const transcription = await readableToText(readable);
+      const { readable, metadata } = await getS3VideoReadable(payload.s3);
+      const transcription = await readableToText(
+        readable,
+        metadata
+          ? {
+              language: metadata.language,
+              summarize: metadata.summarize === "true" ? "v2" : undefined,
+              filler_words: metadata.fillerWords === "true",
+              diarize: metadata.diarize === "true",
+            }
+          : {},
+      );
 
       await saveTranscription({
         jobId,

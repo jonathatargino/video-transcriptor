@@ -3,9 +3,15 @@ import { getPresignedUrlByFile } from "../../usecases/transcription/get-presigne
 import { StatusCodes } from "http-status-codes";
 
 export async function getFilePresignedUrl(req: Request, res: Response) {
-  const { fileType } = req.body;
+  const { fileType, diarize, fillerWords, language, summarize } = req.body;
 
-  const presignedUrl = await getPresignedUrlByFile({ fileType });
+  const presignedUrl = await getPresignedUrlByFile({
+    fileType,
+    diarize,
+    fillerWords,
+    language,
+    summarize,
+  });
 
   return res.status(StatusCodes.OK).json({ presignedUrl });
 }

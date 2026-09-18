@@ -11,13 +11,22 @@ const client = new S3Client({});
 export type GetPresignedUrl = (params: {
   fileType: string;
   jobId: string;
+  language?: string;
+  summarize?: string;
+  fillerWords?: string;
+  diarize?: string;
 }) => Promise<string>;
 
-export const getPresignedUrl: GetPresignedUrl = async ({ fileType, jobId }) => {
+export const getPresignedUrl: GetPresignedUrl = async ({
+  fileType,
+  jobId,
+  ...metadata
+}) => {
   const commandItem: PutObjectCommandInput = {
     Bucket: process.env.TRANSCRIPTIONS_VIDEO_BUCKET_NAME,
     Key: `${jobId}.mp4`,
     ContentType: fileType,
+    Metadata: metadata,
   };
 
   logger.info({

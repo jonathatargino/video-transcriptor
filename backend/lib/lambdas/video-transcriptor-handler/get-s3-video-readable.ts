@@ -4,7 +4,14 @@ import { Readable } from "node:stream";
 
 const s3Client = new S3Client({});
 
-export async function getS3VideoReadable(params: S3EventRecord["s3"]) {
+interface GetS3VideoReadableResponse {
+  readable: Readable;
+  metadata?: Record<string, string>;
+}
+
+export async function getS3VideoReadable(
+  params: S3EventRecord["s3"],
+): Promise<GetS3VideoReadableResponse> {
   const bucketName = params.bucket.name;
   const objectRawKey = params.object.key;
 
@@ -23,5 +30,8 @@ export async function getS3VideoReadable(params: S3EventRecord["s3"]) {
     throw new Error("Conteúdo do arquivo S3 veio vazio.");
   }
 
-  return readable as Readable;
+  return {
+    readable: readable as Readable,
+    metadata: response.Metadata,
+  };
 }
