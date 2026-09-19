@@ -36,8 +36,15 @@ export const getPresignedUrl: GetPresignedUrl = async ({
 
   const command = new PutObjectCommand(commandItem);
 
+  const metadataHeaders = new Set(
+    Object.keys(metadata)
+      .filter((key) => metadata[key as keyof typeof metadata] !== undefined)
+      .map((key) => `x-amz-meta-${key.toLowerCase()}`),
+  );
+
   const presignedUrl = await getSignedUrl(client, command, {
     expiresIn: 900,
+    unhoistableHeaders: metadataHeaders,
   });
 
   logger.info({
