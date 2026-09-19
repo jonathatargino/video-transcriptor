@@ -1,7 +1,10 @@
 import createHttpError from "http-errors";
 import { getTranscription, GetTranscription } from "../../services/dynamodb.js";
+import { Transcription } from "../../types/transcription.js";
 
-type GetTranscriptionByJobId = (params: { jobId: string }) => Promise<string>;
+type GetTranscriptionByJobId = (params: {
+  jobId: string;
+}) => Promise<Transcription>;
 
 export const makeGetTranscriptionByJobId = (
   getTranscription: GetTranscription,

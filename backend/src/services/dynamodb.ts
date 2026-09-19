@@ -12,7 +12,7 @@ const docClient = DynamoDBDocumentClient.from(client);
 
 export type GetTranscription = (params: {
   jobId: string;
-}) => Promise<string | undefined>;
+}) => Promise<Transcription | undefined>;
 
 export const getTranscription: GetTranscription = async ({ jobId }) => {
   try {
@@ -41,7 +41,7 @@ export const getTranscription: GetTranscription = async ({ jobId }) => {
       return undefined;
     }
 
-    return transcriptionObject.transcription;
+    return transcriptionObject;
   } catch (error) {
     logger.error({
       message: "Couldn't find transcription",
