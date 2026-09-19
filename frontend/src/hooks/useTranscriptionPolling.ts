@@ -12,6 +12,13 @@ export class TranscriptionTimeoutError extends Error {
   }
 }
 
+export class TranscriptionFailedError extends Error {
+  constructor() {
+    super('Transcription failed')
+    this.name = 'TranscriptionFailedError'
+  }
+}
+
 interface UseTranscriptionPollingOptions {
   jobId: string | null
   enabled: boolean
@@ -34,12 +41,19 @@ export function useTranscriptionPolling({ jobId, enabled }: UseTranscriptionPoll
         throw new TranscriptionTimeoutError()
       }
 
-      return getTranscription(jobId as string)
+      const transcription = await getTranscription(jobId as string)
+
+      if (transcription?.status === 'error') {
+        throw new TranscriptionFailedError()
+      }
+
+      return transcription
     },
     enabled: enabled && jobId !== null,
     refetchInterval: (query) => {
-      if (query.state.data?.transcription) return false
+      if (query.state.data?.status === 'success') return false
       if (query.state.error instanceof TranscriptionTimeoutError) return false
+      if (query.state.error instanceof TranscriptionFailedError) return false
       return POLL_INTERVAL_MS
     },
     retry: false,

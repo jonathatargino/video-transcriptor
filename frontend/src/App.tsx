@@ -12,7 +12,11 @@ import { TranscriptionOptionsForm } from '@/components/TranscriptionOptionsForm'
 import { TranscriptView } from '@/components/TranscriptView'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { TranscriptionTimeoutError, useTranscriptionPolling } from '@/hooks/useTranscriptionPolling'
+import {
+  TranscriptionFailedError,
+  TranscriptionTimeoutError,
+  useTranscriptionPolling,
+} from '@/hooks/useTranscriptionPolling'
 
 type AppState = 'idle' | 'configuring' | 'uploading' | 'polling' | 'error' | 'done'
 
@@ -52,7 +56,7 @@ function App() {
   useEffect(() => {
     if (state !== 'polling') return
 
-    if (pollingQuery.data?.transcription) {
+    if (pollingQuery.data?.status === 'success') {
       setTranscript(pollingQuery.data.transcription)
       setState('done')
       return
@@ -60,6 +64,12 @@ function App() {
 
     if (pollingQuery.error instanceof TranscriptionTimeoutError) {
       setErrorMessage('The transcription is taking longer than expected. Please try again later.')
+      setState('error')
+      return
+    }
+
+    if (pollingQuery.error instanceof TranscriptionFailedError) {
+      setErrorMessage('Something went wrong while transcribing your video. Please try again.')
       setState('error')
     }
   }, [state, pollingQuery.data, pollingQuery.error])
@@ -115,9 +125,7 @@ function App() {
           <div className="flex flex-col items-center gap-3 text-center animate-in fade-in-0">
             <Loader2 className="size-8 animate-spin text-muted-foreground" />
             <p className="font-medium">Transcribing your video…</p>
-            <p className="text-sm text-muted-foreground">
-              This can take a few minutes. We'll check for the transcript every 10 seconds.
-            </p>
+            <p className="text-sm text-muted-foreground">This can take a few minutes.</p>
           </div>
         )}
 

@@ -38,7 +38,17 @@ export async function uploadFileToPresignedUrl(url: string, file: File): Promise
   }
 }
 
-export async function getTranscription(jobId: string): Promise<{ transcription: string } | null> {
+export type TranscriptionStatus = 'success' | 'error'
+
+export interface Transcription {
+  jobId: string
+  transcription: string
+  createdAt: number
+  status: TranscriptionStatus
+  ttl: number
+}
+
+export async function getTranscription(jobId: string): Promise<Transcription | null> {
   const response = await fetch(`${API_BASE_URL}/${jobId}`)
 
   if (response.status === 404) {
@@ -49,7 +59,8 @@ export async function getTranscription(jobId: string): Promise<{ transcription: 
     throw new TranscriptionApiError('Failed to fetch the transcription status')
   }
 
-  return response.json()
+  const { transcription } = (await response.json()) as { transcription: Transcription | null }
+  return transcription
 }
 
 export function parseJobIdFromPresignedUrl(presignedUrl: string): string {

@@ -1,4 +1,4 @@
-import { FileText, Languages, MessageSquareText, Users } from 'lucide-react'
+import { FileText, Languages, MessageSquareText, TriangleAlert, Users } from 'lucide-react'
 import { useState } from 'react'
 import type { TranscriptionOptions } from '@/api/transcription'
 import { Button } from '@/components/ui/button'
@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 
 const AUTO_DETECT_VALUE = 'auto'
+const ENGLISH_LANGUAGE_VALUES = new Set(['en-US', 'en-GB'])
 
 const LANGUAGE_OPTIONS: { value: string; label: string }[] = [
   { value: AUTO_DETECT_VALUE, label: 'Auto-detect' },
@@ -68,6 +69,13 @@ export function TranscriptionOptionsForm({ fileName, onConfirm, onChangeFile }: 
   const [fillerWords, setFillerWords] = useState(false)
   const [summarize, setSummarize] = useState(false)
 
+  const isEnglishSelected = ENGLISH_LANGUAGE_VALUES.has(language)
+
+  function handleLanguageChange(value: string) {
+    setLanguage(value)
+    if (!ENGLISH_LANGUAGE_VALUES.has(value)) setSummarize(false)
+  }
+
   function handleConfirm() {
     onConfirm({
       language: language === AUTO_DETECT_VALUE ? undefined : language,
@@ -98,7 +106,7 @@ export function TranscriptionOptionsForm({ fileName, onConfirm, onChangeFile }: 
             <Languages className="size-4 text-muted-foreground" />
             Video Language
           </Label>
-          <Select value={language} onValueChange={(value) => setLanguage(value as string)}>
+          <Select value={language} onValueChange={(value) => handleLanguageChange(value as string)}>
             <SelectTrigger id="language-select" className="w-48">
               <SelectValue />
             </SelectTrigger>
@@ -114,19 +122,34 @@ export function TranscriptionOptionsForm({ fileName, onConfirm, onChangeFile }: 
 
         {TOGGLE_OPTIONS.map((option) => {
           const Icon = option.icon
+          const isSummarize = option.key === 'summarize'
+          const disabled = isSummarize && !isEnglishSelected
+
           return (
-            <div key={option.key} className="flex items-center justify-between gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-muted/50">
+            <div
+              key={option.key}
+              className={`flex items-center justify-between gap-3 rounded-lg border border-border p-3 transition-colors ${
+                disabled ? 'opacity-60' : 'hover:bg-muted/50'
+              }`}
+            >
               <div className="flex items-start gap-2.5">
                 <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                 <div className="flex flex-col gap-0.5">
                   <Label htmlFor={`${option.key}-switch`}>{option.label}</Label>
                   <p className="text-xs text-muted-foreground">{option.description}</p>
+                  {disabled && (
+                    <p className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+                      <TriangleAlert className="size-3" />
+                      Only available for English audio
+                    </p>
+                  )}
                 </div>
               </div>
               <Switch
                 id={`${option.key}-switch`}
                 checked={toggleState[option.key]}
                 onCheckedChange={toggleSetters[option.key]}
+                disabled={disabled}
               />
             </div>
           )
