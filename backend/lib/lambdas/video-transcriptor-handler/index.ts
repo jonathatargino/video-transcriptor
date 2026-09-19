@@ -23,7 +23,7 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
             ? {
                 language: metadata.language,
                 summarize: metadata.summarize === "true" ? "v2" : undefined,
-                filler_words: metadata.fillerWords === "true",
+                filler_words: metadata.fillerwords === "true",
                 diarize: metadata.diarize === "true",
               }
             : {},
