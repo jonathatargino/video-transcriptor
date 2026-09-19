@@ -16,6 +16,7 @@ export const saveTranscription: SaveTranscription = async (item) => {
     jobId: item.jobId,
     transcription: item.transcription,
     createdAt: Date.now(),
+    status: "success",
     ttl: getDefaultTTLInSecond(),
   };
 
@@ -36,3 +37,34 @@ export const saveTranscription: SaveTranscription = async (item) => {
     jobId: item.jobId,
   });
 };
+
+type SaveFailedTranscriptionExecution = (item: {
+  jobId: string;
+}) => Promise<void>;
+
+export const saveFailedTranscriptionExecution: SaveFailedTranscriptionExecution =
+  async (item) => {
+    const commandItem = {
+      jobId: item.jobId,
+      createdAt: Date.now(),
+      status: "error",
+      ttl: getDefaultTTLInSecond(),
+    };
+
+    logger.info({
+      message: "Uploading transcription failed execution on DynamoDB",
+      item: { ...commandItem },
+    });
+
+    const command = new PutCommand({
+      TableName: process.env.TRANSCRIPTIONS_TABLE_NAME,
+      Item: commandItem,
+    });
+
+    await docClient.send(command);
+
+    logger.info({
+      message: "Transcription failed execution saved on DynamoDB!",
+      jobId: item.jobId,
+    });
+  };
