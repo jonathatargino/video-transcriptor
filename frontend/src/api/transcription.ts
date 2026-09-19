@@ -2,11 +2,21 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api/v1/transcription
 
 export class TranscriptionApiError extends Error {}
 
-export async function getPresignedUrl(fileType: string): Promise<{ presignedUrl: string }> {
+export interface TranscriptionOptions {
+  language?: string
+  diarize?: boolean
+  fillerWords?: boolean
+  summarize?: boolean
+}
+
+export async function getPresignedUrl(
+  fileType: string,
+  options?: TranscriptionOptions,
+): Promise<{ presignedUrl: string }> {
   const response = await fetch(`${API_BASE_URL}/presigned-url`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ fileType }),
+    body: JSON.stringify({ fileType, ...options }),
   })
 
   if (!response.ok) {
