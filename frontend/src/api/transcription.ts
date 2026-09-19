@@ -26,10 +26,21 @@ export async function getPresignedUrl(
   return response.json()
 }
 
-export async function uploadFileToPresignedUrl(url: string, file: File): Promise<void> {
+export async function uploadFileToPresignedUrl(
+  url: string,
+  file: File,
+  options?: TranscriptionOptions,
+): Promise<void> {
+  const headers = new Headers({ 'Content-Type': file.type })
+
+  if (options?.language) headers.set('x-amz-meta-language', options.language)
+  if (options?.diarize) headers.set('x-amz-meta-diarize', String(options.diarize))
+  if (options?.fillerWords) headers.set('x-amz-meta-fillerWords', String(options.fillerWords))
+  if (options?.summarize) headers.set('x-amz-meta-summarize', String(options.summarize))
+
   const response = await fetch(url, {
     method: 'PUT',
-    headers: { 'Content-Type': file.type },
+    headers,
     body: file,
   })
 

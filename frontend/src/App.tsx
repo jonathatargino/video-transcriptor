@@ -35,7 +35,7 @@ function App() {
   const uploadMutation = useMutation({
     mutationFn: async ({ file, options }: UploadMutationInput) => {
       const { presignedUrl } = await getPresignedUrl(file.type, options)
-      await uploadFileToPresignedUrl(presignedUrl, file)
+      await uploadFileToPresignedUrl(presignedUrl, file, options)
       return parseJobIdFromPresignedUrl(presignedUrl)
     },
     onMutate: () => {
