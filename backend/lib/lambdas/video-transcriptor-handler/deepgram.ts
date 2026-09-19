@@ -2,6 +2,7 @@ import { DeepgramClient } from "@deepgram/sdk";
 import { Readable } from "stream";
 import { logger } from "../../logger/index.js";
 import { MediaTranscribeRequestOctetStream } from "@deepgram/sdk/listen/v1";
+import { SPEAKER_LABEL_BY_LANGUAGE } from "./speaker-labels.js";
 
 const client = new DeepgramClient();
 
@@ -22,6 +23,7 @@ export async function readableToText(
     punctuate: true,
     smart_format: true,
     paragraphs: true,
+    utterances: options.diarize,
     ...options,
   };
 
@@ -36,8 +38,27 @@ export async function readableToText(
   );
 
   if ("results" in response) {
+    const utterances = response?.results?.utterances;
+
+    const languageCode = (
+      options.language ??
+      response?.results?.channels?.[0]?.detected_language ??
+      "en"
+    )
+      .split("-")[0]
+      .toLowerCase();
+
+    const speakerLabel = SPEAKER_LABEL_BY_LANGUAGE[languageCode] ?? "Speaker";
+
     const transcription =
-      response?.results?.channels?.[0]?.alternatives?.[0]?.transcript ?? "";
+      options.diarize && utterances?.length
+        ? utterances
+            .map(
+              (utterance) =>
+                `${speakerLabel} ${(utterance.speaker ?? 0) + 1}: ${utterance.transcript}`,
+            )
+            .join("\n")
+        : (response?.results?.channels?.[0]?.alternatives?.[0]?.transcript ?? "");
 
     logger.info({
       message: "Successfully transcripted the readable",
